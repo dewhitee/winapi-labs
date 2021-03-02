@@ -2,39 +2,63 @@
 #include <iostream>
 #include <iomanip>
 
-// Only for testing purposes
-#include <bitset>
-
 using namespace std;
+
+const unsigned char bitsPerMonth = 4;
+const unsigned char bitsPerDays = 5;
+const unsigned char bitsPerHours = 5;
+const unsigned char bitsPerMinutes = 6;
+const unsigned char bitsPerSeconds = 6;
 
 void DisplayBits(unsigned int);
 void DisplayAsDecimal(unsigned int);
 unsigned int CycleShift(unsigned int);
-unsigned int PackDate(); // unsigned ints
+unsigned int PackDate();
+unsigned int PackDate(unsigned month, unsigned day, unsigned hours, unsigned minutes, unsigned seconds);
 void UnpackDate(unsigned int packedDate);
-unsigned char CountOnes(unsigned int value);
+unsigned int CountOnes(unsigned int value);
+unsigned int CountOnes2(unsigned int value);
+unsigned int CountOnes3(unsigned int value);
+void Separator();
+void InitialValuePrint(unsigned value);
 
 int main()
 {
 	int val = 2000000000;
+	int val2 = 1;
+	int val3 = 0xffffffff;
 	int shift = 3;
-	
 
 	// 7.3
+	cout << "(7.3) Display bits:\n";
 	DisplayBits(val);
+	Separator();
 
 	// 7.4
-	cout << "(7.4) Shifted: " << CycleShift(val) << endl;
+	cout << "(7.4) Right shift by one bit:\n";
+	CycleShift(val);
+	Separator();
 
 	// 7.5.1
+	cout << "(7.5) Pack date:\n";
 	unsigned int outDate = PackDate();
-	cout << "(7.5) Packed date: " << outDate << endl;
+	Separator();
 
 	// 7.5.2
+	cout << "(7.5.1) Unpack date:\n";
 	UnpackDate(outDate);
+	Separator();
 
 	// 7.6
-	cout << "(7.6) Count of ones: " << (int)CountOnes(val) << endl;
+	cout << "(7.6) Counting ones:\n";
+	cout << "\n(7.6 first version) Count of ones:\n";
+	CountOnes(val);
+	Separator();
+	cout << "(7.6 second version) Count of ones:\n";
+	CountOnes2(val);
+	Separator();
+	cout << "(7.6 third version) Count of ones:\n";
+	CountOnes3(val);
 
 	system("PAUSE");
 	return 0;
@@ -57,9 +81,7 @@ void DisplayBits(unsigned int value)
 
 		// Adding space every 8 bits
 		if (c % 8 == 0)
-		{
 			cout << ' ';
-		}
 	}
 	cout << endl;
 }
@@ -71,88 +93,66 @@ void DisplayAsDecimal(unsigned int)
 
 unsigned int CycleShift(unsigned int value)
 {
+	InitialValuePrint(value);
+
 	unsigned int shift = 8;
-
-	//value = 0b01011111 00001111 01010101 00001111;
-	///value >>= 8;
-	// 00000000 01011111 00001111 01010101
-
-	// left shift
-	//value = 0b01011111 00001111 01010101 00001111;
-	// shift = 8
-	unsigned int mask = 1 << 31; // 1000... 31 bits
+	unsigned int mask = 1;
 	unsigned int rightShift = 1;
-	//value >>= rightShift;
-	//value >>= 1;
 
 	// if value's first bit is 1 we need to add 1 to the value
 	if (value & mask)
 	{
-		//value <<= 1;
 		value >>= rightShift;
-		value |= 1;
+
+		// Push lower bit to the higher bit
+		value |= (1 << 31);
 	}
 	else
 	{
-		//value <<= 1;
 		value >>= rightShift;
 	}
 	
+	cout << "Result: " << endl;
+	DisplayBits(value);
 	return value;
 }
-
-const unsigned char bitsPerMonth = 4;
-const unsigned char bitsPerDays = 5;
-const unsigned char bitsPerHours = 5;
-const unsigned char bitsPerMinutes = 6;
-const unsigned char bitsPerSeconds = 6;
 
 // Returns date
 unsigned int PackDate()
 {
-	// 13:01.5
-
-	// 5 bits for hours
-	// 6 bits for minutes
-	// 6 bits for seconds
-	// 5 bits for days
-	// 4 bit for months
-
 	unsigned int date = 0;
 	unsigned int month, day, hours, minutes, seconds;
 
-	cout << "Enter month"; cin >> month;
-	cout << "Enter day"; cin >> day;
-	cout << "Enter hour"; cin >> hours;
-	cout << "Enter minutes"; cin >> minutes;
-	cout << "Enter seconds"; cin >> seconds;
+	cout << "\nEnter month > "; cin >> month;
+	cout << "Enter day > "; cin >> day;
+	cout << "Enter hour > "; cin >> hours;
+	cout << "Enter minutes > "; cin >> minutes;
+	cout << "Enter seconds > "; cin >> seconds;
 
-	date = seconds;
-	cout << "Date (added seconds)\n";
-	DisplayBits(date);
+	return PackDate(month, day, hours, minutes, seconds);
+}
+
+unsigned int PackDate(unsigned month, unsigned day, unsigned hours, unsigned minutes, unsigned seconds)
+{
+	unsigned date = seconds;
+	//cout << "\nDate (added seconds)\n";
+	//DisplayBits(date);
 	date |= (minutes << bitsPerSeconds);
-	cout << "Date (added minutes) = " << date << endl;
-	DisplayBits(date);
+	//cout << "Date (added minutes) = " << date << endl;
+	//DisplayBits(date);
 	date |= (hours << (bitsPerSeconds + bitsPerMinutes));
-	cout << "Date (added hours) = " << date << endl;
-	DisplayBits(date);
+	//cout << "Date (added hours) = " << date << endl;
+	//DisplayBits(date);
 	date |= (day << (bitsPerSeconds + bitsPerMinutes + bitsPerHours));
-	cout << "Date (added days)\n";
-	DisplayBits(date);
+	//cout << "Date (added days)\n";
+	//DisplayBits(date);
 	date |= (month << (bitsPerSeconds + bitsPerMinutes + bitsPerHours + bitsPerDays));
-	cout << "Date (added month)\n";
-
-	// Adding hours
-	///date = hours;
-
-	// Adding minutes
-	///date |= (minutes << 5);
-
-	// Adding seconds
-	///date |= (seconds << 11);
+	//cout << "Date (added month)\n";
+	//DisplayBits(date);
 
 	// Print date value as decimal
-
+	cout << "\nPack result:";
+	cout << "\nMonth: " << month << ", Days: " << day << ", Hours: " << hours << ", Minutes: " << minutes << ", Seconds: " << seconds << endl;
 
 	// Print date value as binary
 	DisplayBits(date);
@@ -164,6 +164,7 @@ void UnpackDate(unsigned int packedDate)
 {
 	const bool displayAllBits = false;
 
+	// Retrieves bits value for the specified reserved count of bits shifted to the left by some value
 	auto unpackFor = [packedDate, displayAllBits](unsigned int reservedBits, unsigned int shift) {
 		unsigned int outValue = (packedDate & (reservedBits << shift)) >> shift;
 		if (displayAllBits)
@@ -178,94 +179,99 @@ void UnpackDate(unsigned int packedDate)
 		return outValue;
 	};
 
-	//unsigned int date = 0;
+	InitialValuePrint(packedDate);
 
-	///unsigned int hours = date & 31;
-	// 31 = 0001 1111
-	// 63 = 0011 1111
-	///unsigned int minutes = (date & (63 << 5)) >> 5; // 5 as we need 5 bits for HOURS
-	///unsigned int seconds = (date & (63 << 11)) >> 11; // 6 as we need 6 bits for MINUTES
-
-	cout << "\n\nUnpacking date:\n";
-	DisplayBits(packedDate);
-
-	/*const unsigned int secondsReservedBits = 63;
-	const unsigned int seconds = packedDate & secondsReservedBits;
-	cout << "Seconds = " << packedDate << " & " << secondsReservedBits << " = " << seconds << endl;
-	DisplayBits(packedDate);
-	DisplayBits(secondsReservedBits);
-	DisplayBits(seconds);*/
 	unsigned int seconds = unpackFor(63, 0);
 	unsigned int minutes = unpackFor(63, bitsPerSeconds);
 	unsigned int hours = unpackFor(31, bitsPerSeconds + bitsPerMinutes);
-	unsigned int days = unpackFor(31, bitsPerSeconds + bitsPerMinutes + bitsPerHours);
+	unsigned int day = unpackFor(31, bitsPerSeconds + bitsPerMinutes + bitsPerHours);
 	unsigned int month = unpackFor(31, bitsPerSeconds + bitsPerMinutes + bitsPerHours + bitsPerDays);
 
-	//const unsigned int minutesShift = bitsPerSeconds;
-	//const unsigned int minutesReservedBits = 63;
-	//const unsigned int minutes = (packedDate & (minutesReservedBits << minutesShift)) >> minutesShift;
-	//cout << "Minutes = " << packedDate << " & (" << minutesReservedBits << " << " << minutesShift << ") >> " << minutesShift << " = " << minutes << endl;
-	//DisplayBits(packedDate);
-	//DisplayBits((minutesReservedBits << minutesShift));
-	//DisplayBits(minutes);
-
-	//const unsigned int hoursShift = bitsPerSeconds + bitsPerMinutes;
-	//const unsigned int hoursReservedBits = 31;
-	//const unsigned int hours = (packedDate & (hoursReservedBits << hoursShift)) >> hoursShift;
-	//cout << "Hours = " << packedDate << " & (" << hoursReservedBits << " << " << hoursShift << ") = " << hours << endl;
-	//DisplayBits(packedDate);
-	//DisplayBits((hoursReservedBits << hoursShift));
-	//DisplayBits(hours);
-
-	//const unsigned int daysShift = bitsPerSeconds + bitsPerMinutes + bitsPerHours;
-	//const unsigned int daysReservedBits = 31;
-	//const unsigned int days = (packedDate & (daysReservedBits << daysShift)) >> daysShift;
-	//cout << "Days = " << packedDate << " & (" << daysReservedBits << " << " << daysShift << ") >> " << daysShift << " = " << days << endl;
-	//DisplayBits(packedDate);
-	//DisplayBits((daysReservedBits << (daysShift)));
-	//DisplayBits(days);
-
-	//const unsigned int monthShift = bitsPerSeconds + bitsPerMinutes + bitsPerHours + bitsPerDays;
-	//const unsigned int monthReservedBits = 31;
-	//const unsigned int month = (packedDate & (monthReservedBits << monthShift)) >> monthShift;
-	//cout << "Months = " << packedDate << " & (" << monthReservedBits << " << " << monthShift << ") >> " << monthShift << " = " << month << endl;
-	//DisplayBits(packedDate);
-	//DisplayBits((monthReservedBits << (monthShift)));
-	//DisplayBits(month);
-
 	// Print as decimal
-	cout << "\nUnpack result:\n";
-	cout << "Month: " << month << ", Days: " << days << ", Hours: " << hours << ", Minutes: " << minutes << ", Seconds: " << seconds << endl;
+	cout << "\nUnpack result:";
+	cout << "\nMonth: " << month << ", Days: " << day << ", Hours: " << hours << ", Minutes: " << minutes << ", Seconds: " << seconds << endl;
 
 	// Print as binary
+	PackDate(month, day, hours, minutes, seconds);
 }
 
-unsigned char CountOnes(unsigned int value)
+unsigned int CountOnes(unsigned int value)
 {
-	unsigned int mask = 1 << 31;
-	
-	for (int i = 1; i < 32; i++)
-	{
-		// checking mask
-	}
-
 	// Hard method
+	// Returns ones count for specified value
+	auto getOnesCount = [](unsigned char val) {
+		unsigned int outCount = 0;
+		for (unsigned char i = 0; i < 8; i++)
+			outCount += ((val >> i) & 1);
+
+		return outCount;
+	};
 
 	unsigned char bitArray[256];
 
-	bitArray[0] = 0;
-	bitArray[1] = 1;
-	// ...
-	bitArray[255] = 8;
+	// Fill bit array
+	for (unsigned int i = 0; i < 256; i++)
+	{
+		bitArray[i] = getOnesCount(i);
+		//cout << "Value = " << i << ", count of bits = " << (int)bitArray[i] << endl;
+	}
 
 	// given a value == 10100100 00000000 11110000 10101010		-- our value
 	//				   &00000000 00000000 00000000 11111111		-- 255 mask
 	//				    -----------------------------------
 	//					00000000 00000000 00000000 10101010 == index
 
-	// 
-	return bitArray[value & 255]
-		+ bitArray[(value >> 8) & 255] // or; bitArray[(value & (255 << 8)) >> 8]
-		+ bitArray[(value >> 16) & 255] // checking third byte
-		+ bitArray[(value >> 24) & 255]; // checking fourth byte
+	unsigned int firstByteOnes = bitArray[value & 255];
+	unsigned int secondByteOnes = bitArray[(value >> 8) & 255];  // or; bitArray[(value & (255 << 8)) >> 8]
+	unsigned int thirdByteOnes = bitArray[(value >> 16) & 255];  // checking third byte
+	unsigned int fourthByteOnes = bitArray[(value >> 24) & 255];  // checking fourth byte
+	unsigned int outResult = firstByteOnes + secondByteOnes + thirdByteOnes + fourthByteOnes;
+
+	cout << "\nCount of ones by byte:\nFirst byte: "
+		<< firstByteOnes << ", Second byte: "
+		<< secondByteOnes << ", Third byte: "
+		<< thirdByteOnes << ", Fourth byte: "
+		<< fourthByteOnes << endl;
+
+	InitialValuePrint(value);
+	cout << "\nTotal count of ones: " << outResult << endl;
+	return outResult;
+}
+
+unsigned int CountOnes2(unsigned int value)
+{
+	unsigned int outCount = 0;
+
+	for (int i = 0; i < 32; i++)
+		outCount += ((value >> i) & 1);
+
+	InitialValuePrint(value);
+	cout << "\nTotal count of ones: " << outCount << endl;
+	return outCount;
+}
+
+unsigned int CountOnes3(unsigned int value)
+{
+	unsigned int outCount = 0;
+	unsigned int mask = 1 << 31;
+	for (unsigned int i = 1; i <= 32; i++)
+	{
+		outCount += (bool)(value & mask);
+		mask >>= 1;
+	}
+
+	InitialValuePrint(value);
+	cout << "\nTotal count of ones: " << outCount << endl;
+	return outCount;
+}
+
+void Separator()
+{
+	cout << "\n----------------------------------\n";
+}
+
+void InitialValuePrint(unsigned value)
+{
+	cout << "Initial value:\n";
+	DisplayBits(value);
 }
