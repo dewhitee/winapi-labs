@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 
+// Deniss Belovs / variant 2
+
 using namespace std;
 
 const unsigned char bitsPerMonth = 4;
@@ -10,24 +12,39 @@ const unsigned char bitsPerHours = 5;
 const unsigned char bitsPerMinutes = 6;
 const unsigned char bitsPerSeconds = 6;
 
+// 7.3 function
 void DisplayBits(unsigned int);
-void DisplayAsDecimal(unsigned int);
+
+// 7.4 function
 unsigned int CycleShift(unsigned int);
+
+// 7.5 functions
 unsigned int PackDate();
 unsigned int PackDate(unsigned month, unsigned day, unsigned hours, unsigned minutes, unsigned seconds);
 void UnpackDate(unsigned int packedDate);
+
+// Returns ones count in byte for specified value
+unsigned int GetOnesCountInByte(unsigned int value);
+
+// Count ones variants for testing
 unsigned int CountOnes(unsigned int value);
 unsigned int CountOnes2(unsigned int value);
 unsigned int CountOnes3(unsigned int value);
+
+// 7.6 functions
+unsigned int CountOnesInByte();
+unsigned int CountOnesInByte2();
+
+// Helpers
 void Separator();
 void InitialValuePrint(unsigned value);
 
 int main()
 {
+	// Testing values
 	int val = 2000000000;
 	int val2 = 1;
 	int val3 = 0xffffffff;
-	int shift = 3;
 
 	// 7.3
 	cout << "(7.3) Display bits:\n";
@@ -51,14 +68,12 @@ int main()
 
 	// 7.6
 	cout << "(7.6) Counting ones:\n";
+	CountOnesInByte();
 	cout << "\n(7.6 first version) Count of ones:\n";
-	CountOnes(val);
 	Separator();
 	cout << "(7.6 second version) Count of ones:\n";
-	CountOnes2(val);
+	CountOnesInByte2();
 	Separator();
-	cout << "(7.6 third version) Count of ones:\n";
-	CountOnes3(val);
 
 	system("PAUSE");
 	return 0;
@@ -84,11 +99,6 @@ void DisplayBits(unsigned int value)
 			cout << ' ';
 	}
 	cout << endl;
-}
-
-void DisplayAsDecimal(unsigned int)
-{
-
 }
 
 unsigned int CycleShift(unsigned int value)
@@ -135,28 +145,15 @@ unsigned int PackDate()
 unsigned int PackDate(unsigned month, unsigned day, unsigned hours, unsigned minutes, unsigned seconds)
 {
 	unsigned date = seconds;
-	//cout << "\nDate (added seconds)\n";
-	//DisplayBits(date);
 	date |= (minutes << bitsPerSeconds);
-	//cout << "Date (added minutes) = " << date << endl;
-	//DisplayBits(date);
 	date |= (hours << (bitsPerSeconds + bitsPerMinutes));
-	//cout << "Date (added hours) = " << date << endl;
-	//DisplayBits(date);
 	date |= (day << (bitsPerSeconds + bitsPerMinutes + bitsPerHours));
-	//cout << "Date (added days)\n";
-	//DisplayBits(date);
 	date |= (month << (bitsPerSeconds + bitsPerMinutes + bitsPerHours + bitsPerDays));
-	//cout << "Date (added month)\n";
-	//DisplayBits(date);
 
-	// Print date value as decimal
 	cout << "\nPack result:";
 	cout << "\nMonth: " << month << ", Days: " << day << ", Hours: " << hours << ", Minutes: " << minutes << ", Seconds: " << seconds << endl;
 
-	// Print date value as binary
 	DisplayBits(date);
-
 	return date;
 }
 
@@ -195,31 +192,23 @@ void UnpackDate(unsigned int packedDate)
 	PackDate(month, day, hours, minutes, seconds);
 }
 
+unsigned int GetOnesCountInByte(unsigned int value)
+{
+	unsigned int outCount = 0;
+	for (unsigned char i = 0; i < 8; i++)
+		outCount += ((value >> i) & 1);
+
+	return outCount;
+}
+
 unsigned int CountOnes(unsigned int value)
 {
 	// Hard method
-	// Returns ones count for specified value
-	auto getOnesCount = [](unsigned char val) {
-		unsigned int outCount = 0;
-		for (unsigned char i = 0; i < 8; i++)
-			outCount += ((val >> i) & 1);
-
-		return outCount;
-	};
-
 	unsigned char bitArray[256];
 
 	// Fill bit array
 	for (unsigned int i = 0; i < 256; i++)
-	{
-		bitArray[i] = getOnesCount(i);
-		//cout << "Value = " << i << ", count of bits = " << (int)bitArray[i] << endl;
-	}
-
-	// given a value == 10100100 00000000 11110000 10101010		-- our value
-	//				   &00000000 00000000 00000000 11111111		-- 255 mask
-	//				    -----------------------------------
-	//					00000000 00000000 00000000 10101010 == index
+		bitArray[i] = GetOnesCountInByte(i);
 
 	unsigned int firstByteOnes = bitArray[value & 255];
 	unsigned int secondByteOnes = bitArray[(value >> 8) & 255];  // or; bitArray[(value & (255 << 8)) >> 8]
@@ -236,6 +225,85 @@ unsigned int CountOnes(unsigned int value)
 	InitialValuePrint(value);
 	cout << "\nTotal count of ones: " << outResult << endl;
 	return outResult;
+}
+
+unsigned int CountOnesInByte()
+{
+	unsigned char bitArray[256];
+	for (unsigned int i = 0; i < 256; i++)
+		bitArray[i] = GetOnesCountInByte(i);
+
+	int value;
+	cout << "Enter value to count it's 1 bits > "; cin >> value;
+	unsigned int byteIndex;
+	cout << "Enter byte index in which count 1 bits (choose from 1 (lower) to 4 (higher)) > "; cin >> byteIndex;
+
+	unsigned outCount = 0;
+	switch (byteIndex)
+	{
+		case 1: 
+			outCount = bitArray[value & 255];
+			break;
+		case 2: 
+			outCount = bitArray[(value >> 8) & 255];
+			break;
+		case 3: 
+			outCount = bitArray[(value >> 16) & 255];
+			break;
+		case 4: 
+			outCount = bitArray[(value >> 24) & 255];
+			break;
+		default:
+		{
+			cout << "You have specified wrong byte index.\n";
+		}
+	}
+	InitialValuePrint(value);
+	cout << "\nTotal count of ones: " << outCount << endl;
+	return outCount;
+}
+
+unsigned int CountOnesInByte2()
+{
+	int value;
+	cout << "Enter value to count it's 1 bits > "; cin >> value;
+	unsigned int byteIndex;
+	cout << "Enter byte index in which count 1 bits (choose from 1 (lower) to 4 (higher)) > "; cin >> byteIndex;
+
+	unsigned int maskedValue = 0;
+
+	switch (byteIndex)
+	{
+		case 1: 
+			maskedValue = value & (255 << 0);
+			break;
+		case 2: 
+			maskedValue = value & (255 << 8);
+			break;
+		case 3: 
+			maskedValue = value & (255 << 16);
+			break;
+		case 4: 
+			maskedValue = value & (255 << 24);
+			break;
+		default:
+		{
+			cout << "You have specified wrong byte index.\n";
+		}
+	}
+
+	unsigned int outCount = 0;
+	unsigned int mask = 1 << 31;
+	
+	for (unsigned int i = 1; i <= 32; i++)
+	{
+		outCount += (bool)(maskedValue & mask);
+		mask >>= 1;
+	}
+
+	InitialValuePrint(value);
+	cout << "\nTotal count of ones: " << outCount << endl;
+	return outCount;
 }
 
 unsigned int CountOnes2(unsigned int value)
