@@ -68,8 +68,8 @@ int main()
 
 	// 7.6
 	cout << "(7.6) Counting ones:\n";
-	CountOnesInByte();
 	cout << "\n(7.6 first version) Count of ones:\n";
+	CountOnesInByte();
 	Separator();
 	cout << "(7.6 second version) Count of ones:\n";
 	CountOnesInByte2();
