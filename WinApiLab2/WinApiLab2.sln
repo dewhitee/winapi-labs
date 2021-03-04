@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiLab2", "WinApiLab2\WinApiLab2.vcxproj", "{020E997E-FFF2-4C70-B129-1424BD9A2793}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Debug|x64.ActiveCfg = Debug|x64
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Debug|x64.Build.0 = Debug|x64
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Debug|x86.ActiveCfg = Debug|Win32
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Debug|x86.Build.0 = Debug|Win32
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Release|x64.ActiveCfg = Release|x64
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Release|x64.Build.0 = Release|x64
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Release|x86.ActiveCfg = Release|Win32
+		{020E997E-FFF2-4C70-B129-1424BD9A2793}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88C2682E-A35E-4C2F-A80E-659D6153128F}
+	EndGlobalSection
+EndGlobal
