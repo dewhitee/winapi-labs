@@ -46,6 +46,9 @@ int main()
 	int val2 = 1;
 	int val3 = 0xffffffff;
 
+	cout << "Enter initial value > ";
+	cin >> val;
+
 	// 7.3
 	cout << "(7.3) Display bits:\n";
 	DisplayBits(val);
@@ -68,10 +71,10 @@ int main()
 
 	// 7.6
 	cout << "(7.6) Counting ones:\n";
-	cout << "\n(7.6 first version) Count of ones:\n";
+	cout << "\n(7.6 first version) Count of ones using array:\n";
 	CountOnesInByte();
 	Separator();
-	cout << "(7.6 second version) Count of ones:\n";
+	cout << "(7.6 second version) Count of ones using mask:\n";
 	CountOnesInByte2();
 	Separator();
 
@@ -222,7 +225,7 @@ unsigned int CountOnes(unsigned int value)
 		<< thirdByteOnes << ", Fourth byte: "
 		<< fourthByteOnes << endl;
 
-	InitialValuePrint(value);
+	//InitialValuePrint(value);
 	cout << "\nTotal count of ones: " << outResult << endl;
 	return outResult;
 }
@@ -259,7 +262,11 @@ unsigned int CountOnesInByte()
 		}
 	}
 	InitialValuePrint(value);
-	cout << "\nTotal count of ones: " << outCount << endl;
+	cout << "\nTotal count of ones in " << byteIndex << "-byte: " << outCount << endl;
+
+	// Count and show total count of ones in value
+	CountOnes(value);
+
 	return outCount;
 }
 
@@ -302,7 +309,11 @@ unsigned int CountOnesInByte2()
 	}
 
 	InitialValuePrint(value);
-	cout << "\nTotal count of ones: " << outCount << endl;
+	cout << "\nTotal count of ones in " << byteIndex << "-byte: " << outCount << endl;
+
+	// Count and show total count of ones in value
+	CountOnes2(value);
+
 	return outCount;
 }
 
@@ -313,7 +324,7 @@ unsigned int CountOnes2(unsigned int value)
 	for (int i = 0; i < 32; i++)
 		outCount += ((value >> i) & 1);
 
-	InitialValuePrint(value);
+	//InitialValuePrint(value);
 	cout << "\nTotal count of ones: " << outCount << endl;
 	return outCount;
 }
@@ -328,7 +339,7 @@ unsigned int CountOnes3(unsigned int value)
 		mask >>= 1;
 	}
 
-	InitialValuePrint(value);
+	//InitialValuePrint(value);
 	cout << "\nTotal count of ones: " << outCount << endl;
 	return outCount;
 }
