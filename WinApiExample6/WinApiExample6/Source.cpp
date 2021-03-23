@@ -90,6 +90,71 @@ int main()
 		cout << "Error!\n";
 	}
 
+	// FindFirstFile, FindNextFile - searches ONLY in the current directory - not in the inner directories.
+	// Regex * - multiple any char, ? - single any char
+	WIN32_FIND_DATA fd;
+	HANDLE hFindFile = FindFirstFile(L"*", &fd);
+	if (hFindFile == INVALID_HANDLE_VALUE)
+	{
+		cout << "\nFile is not found\n";
+	}
+	else
+	{
+		wcout << "\nFile name: " << fd.cFileName << " ";
+		cout << (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? "\tDIRECTORY " : "\tFILE ");
+		cout << (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN ? "HIDDEN\n" : "NOT HIDDEN\n");
+
+		// Iterate over all files
+		while (FindNextFile(hFindFile, &fd))
+		{
+			wcout << "File name: " << fd.cFileName << " ";
+			cout << (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? "\tDIRECTORY " : "\tFILE ");
+			cout << (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN ? "HIDDEN\n" : "NOT HIDDEN\n");
+		}
+		FindClose(hFindFile);
+	}
+
+	// Creating file
+	HANDLE hFile2 = CreateFile(L"numbs.dat", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile2 == INVALID_HANDLE_VALUE)
+	{
+		cout << "Access denied. Error\n";
+	}
+	else
+	{
+		// Writing to file
+		SetFilePointer(hFile2, 0, 0, FILE_END);
+		DWORD numberOfWrittenBytes;
+		for (int i = 65; i < 75; i++)
+		{
+			if (!WriteFile(hFile2, &i, sizeof(int), &numberOfWrittenBytes, NULL))
+			{
+				cout << "Can't write. Error\n";
+			}
+			cout << numberOfWrittenBytes << " bytes have written'\n";
+		}
+		// Reading from file
+		SetFilePointer(hFile2, 0, 0, FILE_BEGIN);
+		DWORD sizeInBytes = GetFileSize(hFile2, NULL);
+		//sizeInBytes = sizeInBytes / sizeof(int);
+		cout << "size = " << sizeInBytes << endl;
+		cout << "Reading:\n";
+		for (int i = 0; i < sizeInBytes; i++)
+		{
+			int currentValue;
+			char currentByte;
+			//if (ReadFile(hFile2, &currentValue, sizeof(int), &numberOfWrittenBytes, NULL))
+			//{
+			//	cout << currentValue << endl;
+			//}
+			if (ReadFile(hFile2, &currentByte, sizeof(char), &numberOfWrittenBytes, NULL))
+			{
+				cout << currentByte << endl;
+			}
+		}
+		CloseHandle(hFile2);
+	}
+
 	system("PAUSE");
 	return 0;
 }
