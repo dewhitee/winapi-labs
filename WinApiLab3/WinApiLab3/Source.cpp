@@ -32,7 +32,12 @@ int main()
 	TIME_ZONE_INFORMATION timeZoneInfo;
 	GetTimeZoneInformation(&timeZoneInfo);
 
-	wcout << "Local time: " << systemTime.wHour << ":" << systemTime.wMinute << ". " << systemTime.wDayOfWeek << endl;
+	wcout << "Local time: " << systemTime.wHour 
+		<< ":" << systemTime.wMinute 
+		<< ":" << systemTime.wSecond
+		<< "\n" << systemTime.wDay << "/" << systemTime.wMonth << "/" << systemTime.wYear
+		<< "\nDay of week: " << systemTime.wDayOfWeek 
+		<< endl;
 	wcout << "Time zone: (STANDARD) " << timeZoneInfo.StandardName << ", (DAYLIGHT) " << timeZoneInfo.DaylightName << endl;
 	Separator();
 
@@ -104,12 +109,16 @@ int main()
 
 VOID PrintFreeSpaceOf(CONST WCHAR disk[])
 {
-	DWORD svk, bs, fk, k;
-	if (GetDiskFreeSpace(disk, &svk, &bs, &fk, &k))
+	DWORD sectorsPerCluster, bytesPerSector, freeClusters, clusters;
+	if (GetDiskFreeSpace(disk, &sectorsPerCluster, &bytesPerSector, &freeClusters, &clusters))
 	{
-		cout << "SVK: " << svk << ", BS: " << bs << ", FK: " << fk << ", K: " << k << endl;
-		UINT64 overallBytes = (UINT64)k * (UINT64)svk * (UINT64)bs;
-		cout << "Overall bytes: " << overallBytes << " bytes = " 
+		cout << "SVK (Sectors per cluster): " << sectorsPerCluster 
+			<< ",\nBS (Bytes per sector): " << bytesPerSector 
+			<< ",\nFK (Total available free clusters): " << freeClusters 
+			<< ",\nK (Total available clusters): " << clusters << endl;
+
+		UINT64 overallBytes = (UINT64)clusters * (UINT64)sectorsPerCluster * (UINT64)bytesPerSector;
+		cout << "\nOverall bytes: " << overallBytes << " bytes = " 
 			<< fixed << setprecision(2) << overallBytes * 0.001 << "KB = "
 			<< fixed << setprecision(2) << overallBytes * 0.00001 << "MB = "
 			<< fixed << setprecision(2) << overallBytes * 0.000000001 << "GB" << endl;
