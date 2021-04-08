@@ -37,8 +37,6 @@ int main()
 	do
 	{
 		RegistryKeys registryKeys = InputRegistryKeys();
-		//EnumerateRegistryValues(registryKeys);
-		//PrintRegistryVariables(GetRegistryKeyContent(registryKeys));
 		EnumerateRegistryValues(registryKeys);
 		cout << "\n --- Again? (0 to exit) > "; cin >> input;
 		system("cls");
@@ -83,7 +81,7 @@ RegistryKeys InputRegistryKeys()
 	WCHAR* searchKey = new WCHAR[len], *name = new WCHAR[len];
 
 	wcout << "Type the search key > "; wcin.getline(searchKey, len);
-	wcout << "Type the name of field > "; wcin.getline(name, len);
+	wcout << "Type the name of field (or press enter if don't need it) > "; wcin.getline(name, len);
 
 	wcout << "\nRoot: " << rootKey << ", Search: " << searchKey << ", Field: " << name << endl << endl;
 	return RegistryKeys{ rootKey, searchKey, name };
@@ -98,9 +96,7 @@ wstring GetRegistryKeyContent(RegistryKeys keys)
 {
 	DWORD bufferSize;
 	wstring outData;
-	//CHAR* data;
 	DWORD data;
-	//RegGetValue(keys.rootKey, keys.searchKey, L"FontSize", RRF_RT_ANY, NULL, (PVOID)&outData, &bufferSize);
 	RegGetValue(keys.rootKey, keys.searchKey, keys.name, RRF_RT_ANY, NULL, (PVOID)&data, &bufferSize);
 	wcout << data << endl;
 
@@ -119,31 +115,20 @@ VOID EnumerateRegistryValues(RegistryKeys keys)
 		return;
 	}
 
-	//DWORD index = 0;
-	//WCHAR valueName[16383];
-	//DWORD valueNameBuffer;
-	//DWORD type;
-	//BYTE* data = new BYTE[2048];
-	//DWORD dataBuffer;
-
 	constexpr int totalBytes = 261;
 	constexpr int byteIncrement = 261;
 
 	DWORD valueIndex = 0;
 	LPWSTR valueName = (LPWSTR)calloc(totalBytes, sizeof(WCHAR));
-	//LPWSTR valueName = WCHAR[totalBytes];
 	DWORD valueNameBuffer = totalBytes;
 	DWORD typeCode;
 	DWORD regEnumValueCode;
 
 	const WCHAR line[] = L"----------------------------------------------------------------------------------------";
 	wprintf(L"%*s | %*s | %*s | valueData\n%s\n", 6, L"Index", 15, L"valueNameBuffer", 32, L"valueName", line);
-	//wcout << L"valueIndex | valueNameBuffer | valueName | valueData\n\n";
 
 	while ((regEnumValueCode = RegEnumValue(hKey, valueIndex, valueName, &valueNameBuffer, NULL, &typeCode, NULL, NULL)) != ERROR_NO_MORE_ITEMS)
 	{
-		//wcout << "\tvalueIndex = " << valueIndex << ", valueNameBuffer = " << valueNameBuffer << " valueName = " << valueName << endl;
-		//wcout << setw(16) << valueIndex << " | " << setw(16) << valueNameBuffer << " | " << setw(16) << valueName << " | ";
 		wprintf(L"%*d | %*d | %*s | ", 6, valueIndex, 15, valueNameBuffer, 32, valueName);
 
 		WCHAR value[255];
@@ -152,10 +137,8 @@ VOID EnumerateRegistryValues(RegistryKeys keys)
 		DWORD size = sizeof(value);
 		DWORD regGetValueCode;
 
-		//wcout << "keys.searchKey = " << keys.searchKey << ", valueName = " << valueName << endl;
 		if ((regGetValueCode = RegGetValue(hKey, NULL, valueName, RRF_RT_ANY, &dataType, pvData, &size)) == ERROR_SUCCESS)
 		{
-			//wcout << "\tdata = " << data << endl;
 			switch (dataType)
 			{
 			case REG_DWORD:
@@ -166,11 +149,6 @@ VOID EnumerateRegistryValues(RegistryKeys keys)
 				break;
 			}
 		}
-		//else
-		//{
-		//	wcout << "\tERROR! valueIndex = " << valueIndex << ", hKey = " << hKey << ", keyName = " << keys.searchKey << ", valueName = " << valueName << endl;
-		//	cout << "dataLength = " << size << endl;
-		//}
 
 		valueNameBuffer += byteIncrement;
 		valueName = (LPWSTR)realloc(valueName, valueNameBuffer * sizeof(WCHAR));
@@ -191,54 +169,5 @@ VOID EnumerateRegistryValues(RegistryKeys keys)
 	if (valueName != NULL)
 		free(valueName);
 
-	//delete[] valueName;
-
-	/*DWORD index = 0;
-	LPWSTR keyName = new WCHAR[261];
-	while (RegEnumKey(hKey, index, keyName, 261) == ERROR_SUCCESS)
-	{
-		wcout << "Index = " << index << ", keyName = " << keyName << endl;
-		DWORD valueIndex = 0;
-		LPWSTR valueName = new WCHAR[8192];
-		DWORD valueNameBuffer;
-		DWORD typeCode;
-		DWORD regEnumValueCode;
-		while ((regEnumValueCode = RegEnumValue(hKey, valueIndex, valueName, &valueNameBuffer, NULL, &typeCode, NULL, NULL)) == ERROR_SUCCESS)
-		{
-			LPBYTE data = new BYTE[8192];
-			DWORD dataLength;
-			DWORD regGetValueCode;
-			if ((regGetValueCode = RegGetValue(hKey, keyName, valueName, RRF_RT_ANY, NULL, (PVOID)&data, &dataLength)) == ERROR_SUCCESS)
-			{
-				wcout << "\tdata = " << data << endl;
-			}
-			else
-			{
-				wcout << "\tvalueIndex = " << valueIndex << ", hKey = " << hKey << ", keyName = " << keyName << ", valueName = " << valueName << endl;
-				cout << "\tregGetValueCode = " << system_category().message(regGetValueCode) << endl;
-				cout << "dataLength = " << dataLength << endl;
-			}
-			delete[] data;
-			valueIndex++;
-		}
-		valueIndex = 0;
-		cout << "\tregEnumValueCode = " << system_category().message(regEnumValueCode) << endl;
-		cout << "valueNameBuffer = " << valueNameBuffer << endl;
-		index++;
-		delete[] valueName;
-	}*/
 	RegCloseKey(hKey);
-
-	//while (DWORD status = RegEnumValue(keys.rootKey, index, valueName, &valueNameBuffer, NULL, &type, data, &dataBuffer) != ERROR_NO_MORE_ITEMS)
-	//{
-	//	if (status != ERROR_SUCCESS)
-	//	{
-	//		cout << "ERROR!" << endl;
-	//		
-	//		break;
-	//	}
-	//	wcout << "Index = " << index << ", valueName = " << valueName << ", data = " << data << endl;
-	//	index++;
-	//}
-	//delete data;
 }
