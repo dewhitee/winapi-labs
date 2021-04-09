@@ -266,7 +266,6 @@ VOID PrintFindFileContents(HANDLE hFile)
 
 VOID PrintCreationTime(SYSTEMTIME creationTime)
 {
-	wcout << L"Created at: ";
 	WCHAR previousFill = wcout.fill('0');
 	wcout << right << setw(2) << creationTime.wHour << L":" << setw(2) << creationTime.wMinute << L":" << setw(2) << creationTime.wSecond << L" "
 		<< setw(2) << creationTime.wDay << L"/" << setw(2) << creationTime.wMonth << L"/" << setw(2) << creationTime.wYear << endl;

@@ -125,7 +125,7 @@ VOID EnumerateRegistryValues(RegistryKeys keys)
 	DWORD regEnumValueCode;
 
 	const WCHAR line[] = L"----------------------------------------------------------------------------------------";
-	wprintf(L"%*s | %*s | %*s | valueData\n%s\n", 6, L"Index", 15, L"valueNameBuffer", 32, L"valueName", line);
+	wprintf(L"%*s | %*s | %*s | %*s | valueData\n%s\n", 6, L"Index", 15, L"valueNameBuffer", 32, L"valueName", line);
 
 	while ((regEnumValueCode = RegEnumValue(hKey, valueIndex, valueName, &valueNameBuffer, NULL, &typeCode, NULL, NULL)) != ERROR_NO_MORE_ITEMS)
 	{
