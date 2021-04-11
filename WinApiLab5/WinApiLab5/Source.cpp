@@ -1,3 +1,7 @@
+﻿// Вариант 2 . Написать консольное приложение, выводящие на экран хранящиеся 
+// в заданном ключе реестра переменные, их типы и значения. 
+// Имена корневого и заданного ключей вводится в программу с клавиатуры.
+
 #include <iostream>
 #include <iomanip>
 #include <windows.h>
@@ -6,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 
-// Deniss Belovs 4801BD
+// Deniss Belovs 4801BD, variant 2
 
 using namespace std;
 
@@ -87,7 +91,17 @@ HKEY InputGetHKEY()
 		<< INPUT_HKEY_USERS << " = HKEY_USERS\n"
 		<< INPUT_HKEY_CURRENT_CONFIG << " = HKEY_CURRENT_CONFIG\n"
 		<< " > "; cin >> rootKeyValue;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore((numeric_limits<streamsize>::max)(), '\n');
+		wcout << "You have entered wrong value, please re-enter > \n";
+		cin >> rootKeyValue;
+	}
+	
 	cin.ignore();
+
 	switch (rootKeyValue)
 	{
 	case INPUT_HKEY_CLASSES_ROOT:
@@ -125,20 +139,22 @@ AdditionalArgs InputAdditionalArgs()
 	wcout << "Print sorted? (default is false, press ENTER to default or 't' to enable sorting)\n > "; 
 	wcin.get(printSorted);
 	outArgs.printSorted = towlower(printSorted) == L't' ? !defaultArgs.printSorted : defaultArgs.printSorted;
-	if (outArgs.printSorted)
+	if (printSorted != L'\n')
 		wcin.ignore();
 
 	WCHAR printOnlyFiltered;
 	wcout << "Print only filtered? (default is false, press ENTER to default or 't' to enable printing only filtered)\n > "; 
 	wcin.get(printOnlyFiltered);
 	outArgs.printOnlyFiltered = towlower(printOnlyFiltered) == L't' ? !defaultArgs.printOnlyFiltered : defaultArgs.printOnlyFiltered;
-	if (outArgs.printOnlyFiltered)
+	if (printOnlyFiltered != L'\n')
 		wcin.ignore();
 
 	WCHAR cutTooLargeData;
 	wcout << "Cut too large data? (default is true, press ENTER to default or 'f' to disable cutting too large data)\n > "; 
 	wcin.get(cutTooLargeData);
 	outArgs.cutTooLargeData = towlower(cutTooLargeData) == L'f' ? !defaultArgs.cutTooLargeData : defaultArgs.cutTooLargeData;
+	if (cutTooLargeData != L'\n')
+		wcin.ignore();
 
 	return outArgs;
 }
@@ -185,43 +201,27 @@ wstring GetRegistryKeyContent(PHKEY hKey, LPWSTR valueName, DWORD& statusCode, C
 					wstr.append(currentWstr + L" ");
 					ptr += currentWstr.size() + 1;
 				}
-				if (!additional.cutTooLargeData)
-				{
-					swprintf_s(registryString, L"%*s | %s\n", valueTypeNameLength, L"REG_MULTI_SZ", 
-						wstr.c_str());
-				}
-				else
-				{
-					swprintf_s(registryString, L"%*s | %.*s\n", valueTypeNameLength, L"REG_MULTI_SZ",
-						valueStringLength, wstr.c_str());
-				}
+
+				!additional.cutTooLargeData
+					? swprintf_s(registryString, L"%*s | %s\n", valueTypeNameLength, L"REG_MULTI_SZ", wstr.c_str())
+					: swprintf_s(registryString, L"%*s | %.*s\n", valueTypeNameLength, L"REG_MULTI_SZ", valueStringLength, wstr.c_str());
+
 				break;
 			}
 			case REG_EXPAND_SZ:
 			{
-				if (!additional.cutTooLargeData)
-				{
-					swprintf_s(registryString, L"%*s | (size=%d) %s\n", valueTypeNameLength, L"REG_EXPAND_SZ", bufferSize, 
-						(PWSTR)dataPtr);
-				}
-				else
-				{
-					swprintf_s(registryString, L"%*s | (size=%d) %.*s\n", valueTypeNameLength, L"REG_EXPAND_SZ", bufferSize, 
-						valueStringLength, (PWSTR)dataPtr);
-				}
+				!additional.cutTooLargeData
+					? swprintf_s(registryString, L"%*s | (size=%d) %s\n", valueTypeNameLength, L"REG_EXPAND_SZ", bufferSize, (PWSTR)dataPtr)
+					: swprintf_s(registryString, L"%*s | (size=%d) %.*s\n", valueTypeNameLength, L"REG_EXPAND_SZ", bufferSize, valueStringLength, (PWSTR)dataPtr);
+
 				break;
 			}
 			case REG_SZ:
 			{
-				if (!additional.cutTooLargeData)
-				{
-					swprintf_s(registryString, L"%*s | %s\n", valueTypeNameLength, L"REG_SZ", (PWSTR)dataPtr);
-				}
-				else
-				{
-					swprintf_s(registryString, L"%*s | %.*s\n", valueTypeNameLength, L"REG_SZ",
-						valueStringLength, (PWSTR)dataPtr);
-				}
+				!additional.cutTooLargeData
+					? swprintf_s(registryString, L"%*s | %s\n", valueTypeNameLength, L"REG_SZ", (PWSTR)dataPtr)
+					: swprintf_s(registryString, L"%*s | %.*s\n", valueTypeNameLength, L"REG_SZ", valueStringLength, (PWSTR)dataPtr);
+
 				break;
 			}
 			case REG_BINARY:
@@ -234,16 +234,11 @@ wstring GetRegistryKeyContent(PHKEY hKey, LPWSTR valueName, DWORD& statusCode, C
 					swprintf_s(s, L"%0*x", 2, (BYTE)*ptr++);
 					wstr.append(wstring(s) + L" ");
 				}
-				if (!additional.cutTooLargeData)
-				{
-					swprintf_s(registryString, L"%*s | (size=%d) %s\n", valueTypeNameLength, L"REG_BINARY", bufferSize, 
-						wstr.c_str());
-				}
-				else
-				{
-					swprintf_s(registryString, L"%*s | (size=%d) %.*s\n", valueTypeNameLength, L"REG_BINARY", bufferSize,
-						valueStringLength, wstr.c_str());
-				}
+
+				!additional.cutTooLargeData
+					? swprintf_s(registryString, L"%*s | (size=%d) %s\n", valueTypeNameLength, L"REG_BINARY", bufferSize, wstr.c_str())
+					: swprintf_s(registryString, L"%*s | (size=%d) %.*s\n", valueTypeNameLength, L"REG_BINARY", bufferSize, valueStringLength, wstr.c_str());
+
 				break;
 			}
 			default:
