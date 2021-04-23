@@ -10,7 +10,10 @@ int main(int argc, char** argv)
 {
 	if (argc < 2)
 	{
-		cout << "Not enough arguments\n";
+		cout << "Not enough arguments.\nStarting default SLAVE process.\n";
+		LPCSTR defaultCommand = ".\\WinApiLab6_Slave.exe C:\\Users\\DEWHITEE\\Desktop\\TEXTDOCS\\eng.txt";
+		//if (CreateProcessA("lab6_masterproc", const_cast<LPSTR>(defaultCommand),
+		//	))
 		return 0;
 	}
 
@@ -19,6 +22,7 @@ int main(int argc, char** argv)
 	ZeroMemory(&startupInfo, sizeof(STARTUPINFO));
 	PROCESS_INFORMATION pi;
 	LPSTR executableName = argv[1];
+	
 	//if (CreateProcess(NULL, ""))
 	return 0;
 }
