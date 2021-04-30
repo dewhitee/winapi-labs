@@ -8,6 +8,7 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		cout << "Not enough arguments\n";
+		system("PAUSE");
 		return 0;
 	}
 
@@ -39,6 +40,6 @@ int main(int argc, char** argv)
 		cout << "Error while opening the file. Check spelling of a file name\n";
 	}
 
-	//system("PAUSE");
+	system("PAUSE");
 	return 0;
 }
