@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <windows.h>
 
 //Вариант 8.
@@ -23,51 +24,49 @@
 
 using namespace std;
 
-int main(int argc, char** argv){
-	if (argc == 3)
+int main(int argc, char** argv) {
+	int* arr = new int[100];
+	for (int i = 0; i < 100; i++)
 	{
-		cout << "Starting by MASTER - MASTER pid: " << argv[2] << endl;
-	}
-	else
-	{
-		cout << "Starting by self" << endl;
+		arr[i] = i;
 	}
 
-	if (argc > 1) {
-		cout << "file name: " << argv[1] << endl;
-		HANDLE file = CreateFile(argv[1], GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-		if (file != INVALID_HANDLE_VALUE) {
-			cout << "Read as text: " << endl;
-			SetFilePointer(file, 0, 0, FILE_BEGIN);
-			DWORD size = GetFileSize(file, 0);
-			for (DWORD i = 0; i < size; i++) {
-				char ch;
-				if (ReadFile(file, &ch, sizeof(char), 0, 0)) {
-					cout << ch;
-				} else {
-					cout << "ERROR!" << endl;
-				}
-			}
-			cout << endl << "Read as integers: " << endl;
-			SetFilePointer(file, 0, 0, FILE_BEGIN);
-			size = size / sizeof(int);
-			for (DWORD i = 0; i < size; i++){
-				int number;
-				if (ReadFile(file, &i, sizeof(int), 0, 0)) {
-					cout << i << " ";
-				} else {
-					cout << "ERROR!" << endl;
-				}
-			}
-			cout << endl;
-			CloseHandle(file);
-		} else {
-			cout << "ERROR with file" << endl;
-		}
-	} else {
-		cout << "Not enough arguments" << endl;
-		return 1;
+	char file_name[] = "my_array_file.txt";
+
+	HANDLE file = CreateFile(file_name, GENERIC_WRITE | GENERIC_READ, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	cout << "my_array_file.txt was created" << endl;
+
+	SetFilePointer(file, 0, 0, FILE_BEGIN);
+	for (int i = 0; i < 100; i++){
+		WriteFile(file, &arr[i], sizeof(int), 0, 0);
 	}
-	system("pause");
+	CloseHandle(file);
+
+	DWORD exit_code;
+	STARTUPINFO si;
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	PROCESS_INFORMATION pi;
+
+	int master_pid = GetCurrentProcessId();
+	cout << "master_pid: " << master_pid << endl;
+
+	char cmd[250];
+	sprintf_s(cmd, "%s %s %d", "SLAVE.exe", file_name, master_pid);
+	cout << "cmd: " << cmd << endl;
+	if (CreateProcess(0, cmd, 0, 0, FALSE, 0, 0, 0, &si, &pi)) {
+		cout << "slave process tid: " << pi.dwThreadId << " pid: " << pi.dwProcessId << endl;
+		DWORD wait_res = WaitForSingleObject(pi.hProcess, 12000);
+		if (wait_res == 0) {
+			cout << "SLAVE closed" << endl;
+		} else if (wait_res == WAIT_TIMEOUT) {
+			cout << "TIMEOUT" << endl;
+		} else {
+			cout << "ERROR" << endl;
+		}
+		CloseHandle(pi.hProcess);
+	} else {
+		cout << "CreateProcess ERROR" << endl;
+	}
+	cout << "MASTER closed" << endl;
 	return 0;
 }
