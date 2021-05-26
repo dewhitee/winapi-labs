@@ -13,10 +13,16 @@ int n;
 float avg;
 int* fact_arr;
 
+struct TestArgs {
+	float test_average;
+	int* test_fact_arr;
+}
+
 void worker(LPVOID);
 void sortArr();
 void sortArr(int* arr);
 bool check_factorials(int* a_arr, int* b_arr);
+TestArgs get_test_args(int* test_arr);
 
 int main() {
 	srand(time(NULL));
@@ -39,29 +45,7 @@ int main() {
 			test_arr[j] = a[j];
 		}
 
-		//////////////////////////////////////////// for test
-		sortArr(test_arr);
-		cout << "Sorted test: ";
-		for (int j = 0; j < n; j++)
-			cout << test_arr[j] << " ";
-		
-		// average
-		float test_sum = 0.0;
-		for (int j = 0; j < n; j++)
-			test_sum += test_arr[j];
-		float test_average = test_sum / n;
-		
-		// factorial 
-		int* test_fact_arr = new int[n];
-		cout << "fact test: ";
-		for (int j = 0; j < n; j++) {
-			test_fact_arr[j] = 1;
-			for (int k = 1; k <= test_arr[j]; k++)
-				test_fact_arr[j] *= k;
-			cout << test_fact_arr[j] << " ";
-		}
-		cout << endl;
-		/////////////////////////////////////////////////////
+		TestArgs test_args = get_test_args(test_arr);
 
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)worker, NULL, 0, NULL);
 		sortArr();
@@ -84,7 +68,8 @@ int main() {
 		}
 		cout << "avg = " << avg << ", count of > avg: " << count << "\n\n";
 
-		if (avg != test_average || !check_factorials(fact_arr, test_fact_arr)) {
+		if (avg != test_args.test_average || !check_factorials(fact_arr, test_args.test_fact_arr))
+		{
 			cout << "\n ------------- ERROR! ---------------\n";
 		}
 
@@ -151,4 +136,34 @@ bool check_factorials(int* a_arr, int* b_arr)
 			return false;
 	}
 	return true;
+}
+
+TestArgs get_test_args(int *test_arr){
+	TestArgs out_args;
+	sortArr(test_arr);
+	cout << "Sorted test: ";
+	for (int j = 0; j < n; j++)
+		cout << test_arr[j] << " ";
+
+	// average
+	float test_sum = 0.0;
+	for (int j = 0; j < n; j++)
+		test_sum += test_arr[j];
+	float test_average = test_sum / n;
+
+	// factorial
+	int *test_fact_arr = new int[n];
+	cout << "fact test: ";
+	for (int j = 0; j < n; j++)
+	{
+		test_fact_arr[j] = 1;
+		for (int k = 1; k <= test_arr[j]; k++)
+			test_fact_arr[j] *= k;
+		cout << test_fact_arr[j] << " ";
+	}
+	cout << endl;
+
+	out_args.test_average = test_average;
+	out_args.test_fact_arr = test_fact_arr;
+	return out_args;
 }
